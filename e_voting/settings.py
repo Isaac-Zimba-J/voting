@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 import os
+import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -88,6 +89,7 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 
+
     # 'default': {
     #     'ENGINE': 'django.db.backends.mysql',
     #     'NAME': 'e_voting',
@@ -96,6 +98,10 @@ DATABASES = {
     #     'PASSWORD': ''
     # }
 }
+
+
+
+DATABASES['default'] = dj_database_url.parse("postgresql://voting_system_v8e6_user:522hYyetoJcxFs7vw9cQWgggUJk8wNgi@dpg-cq7om0tds78s73daojn0-a.oregon-postgres.render.com/voting_system_v8e6")
 
 
 # Password validation
