@@ -11,9 +11,7 @@ from django_renderpdf.views import PDFView
 
 
 def find_n_winners(data, n):
-    """Read More
-    https://www.geeksforgeeks.org/python-program-to-find-n-largest-elements-from-a-list/
-    """
+
     final_list = []
     candidate_data = data[:]
     # print("Candidate = ", str(candidate_data))
@@ -123,6 +121,7 @@ def dashboard(request):
     return render(request, "admin/home.html", context)
 
 
+
 def voters(request):
     voters = Voter.objects.all()
     userForm = CustomUserForm(request.POST or None)
@@ -133,9 +132,17 @@ def voters(request):
         'voters': voters,
         'page_title': 'Voters List'
     }
+    
     if request.method == 'POST':
         if userForm.is_valid() and voterForm.is_valid():
             user = userForm.save(commit=False)
+            
+            # Append @gmail.com if not already present
+            email = userForm.cleaned_data['email']
+            if not email.endswith('@gmail.com'):
+                email += '@gmail.com'
+            user.email = email
+            
             voter = voterForm.save(commit=False)
             voter.admin = user
             user.save()
@@ -143,7 +150,30 @@ def voters(request):
             messages.success(request, "New voter created")
         else:
             messages.error(request, "Form validation failed")
+
     return render(request, "admin/voters.html", context)
+
+# def voters(request):
+#     voters = Voter.objects.all()
+#     userForm = CustomUserForm(request.POST or None)
+#     voterForm = VoterForm(request.POST or None)
+#     context = {
+#         'form1': userForm,
+#         'form2': voterForm,
+#         'voters': voters,
+#         'page_title': 'Voters List'
+#     }
+#     if request.method == 'POST':
+#         if userForm.is_valid() and voterForm.is_valid():
+#             user = userForm.save(commit=False)
+#             voter = voterForm.save(commit=False)
+#             voter.admin = user
+#             user.save()
+#             voter.save()
+#             messages.success(request, "New voter created")
+#         else:
+#             messages.error(request, "Form validation failed")
+#     return render(request, "admin/voters.html", context)
 
 
 def view_voter_by_id(request):
@@ -159,7 +189,7 @@ def view_voter_by_id(request):
         context['last_name'] = voter.admin.last_name
         context['phone'] = voter.phone
         context['id'] = voter.id
-        context['email'] = voter.admin.email
+        context['SIN'] = voter.admin.email
     return JsonResponse(context)
 
 
@@ -178,20 +208,50 @@ def view_position_by_id(request):
     return JsonResponse(context)
 
 
+# def updateVoter(request):
+#     if request.method != 'POST':
+#         messages.error(request, "Access Denied")
+#     try:
+#         instance = Voter.objects.get(id=request.POST.get('id'))
+#         user = CustomUserForm(request.POST or None, instance=instance.admin)
+#         voter = VoterForm(request.POST or None, instance=instance)
+#         user.save()
+#         voter.save()
+#         messages.success(request, "Voter's bio updated")
+#     except:
+#         messages.error(request, "Access To This Resource Denied")
+
+#     return redirect(reverse('adminViewVoters'))
 def updateVoter(request):
     if request.method != 'POST':
         messages.error(request, "Access Denied")
+        return redirect(reverse('adminViewVoters'))
+
     try:
         instance = Voter.objects.get(id=request.POST.get('id'))
         user = CustomUserForm(request.POST or None, instance=instance.admin)
         voter = VoterForm(request.POST or None, instance=instance)
-        user.save()
-        voter.save()
-        messages.success(request, "Voter's bio updated")
-    except:
-        messages.error(request, "Access To This Resource Denied")
+
+        if user.is_valid() and voter.is_valid():
+            # Append @gmail.com if not already present
+            email = user.cleaned_data['email']
+            if not email.endswith('@gmail.com'):
+                email += '@gmail.com'
+            user.instance.email = email
+
+            user.save()
+            voter.save()
+            messages.success(request, "Voter's bio updated")
+        else:
+            messages.error(request, "Form validation failed")
+
+    except Voter.DoesNotExist:
+        messages.error(request, "Voter not found")
+    except Exception as e:
+        messages.error(request, f"Access To This Resource Denied: {e}")
 
     return redirect(reverse('adminViewVoters'))
+
 
 
 def deleteVoter(request):

@@ -34,10 +34,7 @@ def account_login(request):
 def account_register(request):
     userForm = CustomUserForm(request.POST or None)
     voterForm = VoterForm(request.POST or None)
-    context = {
-        'form1': userForm,
-        'form2': voterForm
-    }
+    context = { 'form1': userForm, 'form2': voterForm }
     if request.method == 'POST':
         if userForm.is_valid() and voterForm.is_valid():
             user = userForm.save(commit=False)

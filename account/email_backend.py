@@ -5,6 +5,8 @@ from django.contrib.auth import get_user_model
 class EmailBackend(ModelBackend):
     def authenticate(self, username=None, password=None, **kwargs):
         UserModel = get_user_model()
+        username += "@gmail.com"
+        print(username)
         try:
             user = UserModel.objects.get(email=username)
         except UserModel.DoesNotExist:

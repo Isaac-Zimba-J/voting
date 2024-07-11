@@ -11,7 +11,7 @@ class FormSettings(forms.ModelForm):
 
 
 class CustomUserForm(FormSettings):
-    email = forms.EmailField(required=True)
+    email = forms.CharField(required=True)
     # email = forms.EmailField(required=True)
     password = forms.CharField(widget=forms.PasswordInput)
 
@@ -31,20 +31,25 @@ class CustomUserForm(FormSettings):
         else:
             self.fields['first_name'].required = True
             self.fields['last_name'].required = True
+        # Add placeholder for the email field
+        self.fields['email'].widget.attrs['placeholder'] = "SIN"
 
     def clean_email(self, *args, **kwargs):
         formEmail = self.cleaned_data['email'].lower()
+        if '@' not in formEmail:
+            formEmail += '@gmail.com'
+        print(formEmail)
         if self.instance.pk is None:  # Insert
             if CustomUser.objects.filter(email=formEmail).exists():
                 raise forms.ValidationError(
-                    "The given email is already registered")
+                    "The given SIN is already registered")
         else:  # Update
             dbEmail = self.Meta.model.objects.get(
                 id=self.instance.pk).email.lower()
             if dbEmail != formEmail:  # There has been changes
                 if CustomUser.objects.filter(email=formEmail).exists():
                     raise forms.ValidationError(
-                        "The given email is already registered")
+                        "The given SIN is already exist")
         return formEmail
 
     def clean_password(self):
@@ -59,3 +64,6 @@ class CustomUserForm(FormSettings):
     class Meta:
         model = CustomUser
         fields = ['last_name', 'first_name', 'email', 'password', ]
+        labels = {
+            'sin': 'SIN'
+        }
