@@ -4,3 +4,4 @@ virtualenv==20.0.31
 Pillow
 django-renderpdf
 requests
+dj-database-url==2.2.0
