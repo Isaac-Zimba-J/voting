@@ -6,3 +6,4 @@ django-renderpdf
 requests
 dj-database-url==2.2.0
 gunicorn==22.0.0
+psycopg2==2.9.9
