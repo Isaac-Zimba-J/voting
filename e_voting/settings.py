@@ -96,7 +96,7 @@ DATABASES = {
 
     # 'default': {
     #     'ENGINE': 'django.db.backends.mysql',
-    #     'NAME': 'e_voting',
+    #     'NAME': 'e_votinßg',
     #     'HOST': '127.0.0.1',
     #     'USER': 'root',
     #     'PASSWORD': ''
@@ -104,8 +104,8 @@ DATABASES = {
 }
 
 
-# database_url = os.environ.get("DATABASE_URL")
-# DATABASES['default'] = dj_database_url.parse(database_url)
+database_url = os.environ.get("DATABASE_URL")
+DATABASES['default'] = dj_database_url.parse(database_url)
 
 
 # Password validation
