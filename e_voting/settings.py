@@ -170,3 +170,6 @@ ELECTION_TITLE_PATH = os.path.join(
 
 SEND_OTP = False  # If you toggle this to False, Kindly use 0000 as your OTP
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+SESSION_COOKIE_SAMESITE = None
+CSRF_COOKIE_SAMESITE = None
