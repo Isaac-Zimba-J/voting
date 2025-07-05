@@ -1,0 +1,4 @@
+{
+  "appService.defaultWebAppToDeploy": "/subscriptions/52f3a40d-3e18-4bde-920a-0459c2b58cef/resourceGroups/IsaacJunior.Zimba-rg/providers/Microsoft.Web/sites/evoting",
+  "appService.deploySubpath": "."
+}
