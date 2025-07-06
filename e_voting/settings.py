@@ -29,7 +29,7 @@ SECRET_KEY = '%6lp_p!%r$7t-2ql5hc5(r@)8u_fc+6@ugxcnz=h=b(fn#3$p9'
 # DEBUG = os.environ.get("DEGUB", "False") == "True"
 
 DEBUG = True
-ALLOWED_HOSTS =  ['evoting-zit-dadtbkfzdjb8apd0.eastus-01.azurewebsites.net']#os.environ.get("ALLOWED_HOSTS", "").split(" ")
+ALLOWED_HOSTS =  ['voting-kmup.onrender.com',"*"]#os.environ.get("ALLOWED_HOSTS", "").split(" ")
 
 
 # Application definition
