@@ -5,6 +5,6 @@ Pillow
 django-renderpdf
 requests
 dj-database-url==2.2.0
-gunicorn==22.0.0
+gunicorn
 psycopg2==2.9.9
 whitenoise==6.7.0
