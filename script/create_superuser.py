@@ -1,9 +1,15 @@
 #!/usr/bin/env python
 
 import os
+import sys
 import django
 
-# Set the default Django settings module for the 'django' program.
+# Add project root (where manage.py is) to PYTHONPATH
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(CURRENT_DIR)
+sys.path.append(PROJECT_ROOT)
+
+# Set the default Django settings module
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'e_voting.settings')
 
 # Setup Django
