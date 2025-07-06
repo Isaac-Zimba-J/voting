@@ -10,7 +10,7 @@ pip install -r requirements.txt
 python manage.py collectstatic --noinput
 python manage.py migrate
 
-python scripts/create_superuser.py
+python script/create_superuser.py
 
 
 # Optional: Create superuser if environment variable is set
