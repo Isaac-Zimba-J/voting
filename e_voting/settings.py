@@ -17,19 +17,12 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
-
-# # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = os.environ.get("SECRETKEY")
-SECRET_KEY = '%6lp_p!%r$7t-2ql5hc5(r@)8u_fc+6@ugxcnz=h=b(fn#3$p9'
-
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.environ["SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = os.environ.get("DEGUB", "False") == "True"
-
-DEBUG = True
-ALLOWED_HOSTS =  ["*"]#os.environ.get("ALLOWED_HOSTS", "").split(" ")
+DEBUG = os.environ.get("DEBUG", "False") == "True"
+ALLOWED_HOSTS = [h for h in os.environ.get("ALLOWED_HOSTS", "").split(",") if h]
 
 
 # Application definition
@@ -87,26 +80,18 @@ WSGI_APPLICATION = 'e_voting.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-DATABASES = {
-    #   You can use this :
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+DATABASE_URL = os.environ.get("DATABASE_URL")
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)
     }
-
-
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.mysql',
-    #     'NAME': 'e_votinßg',
-    #     'HOST': '127.0.0.1',
-    #     'USER': 'root',
-    #     'PASSWORD': ''
-    # }
-}
-
-
-# database_url = os.environ.get("DATABASE_URL")
-# DATABASES['default'] = dj_database_url.parse(database_url)
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -189,7 +174,7 @@ AUTHENTICATION_BACKENDS = ['account.email_backend.EmailBackend']
 ELECTION_TITLE_PATH = os.path.join(
     BASE_DIR, 'election_title.txt')  # Election Title File
 
-SEND_OTP = False  # If you toggle this to False, Kindly use 0000 as your OTP
+SEND_OTP = os.environ.get("SEND_OTP", "False") == "True"  # Default bypassed (fixed 0000 OTP); set SEND_OTP=True + SMS_EMAIL/SMS_PASSWORD to enforce real SMS OTP
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SESSION_COOKIE_SAMESITE = None
