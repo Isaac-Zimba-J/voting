@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-voting}
+      POSTGRES_USER: ${POSTGRES_USER:-voting}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  web:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-voting}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-voting}
+      VIRTUAL_HOST: ${VIRTUAL_HOST}
+      LETSENCRYPT_HOST: ${LETSENCRYPT_HOST}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+    volumes:
+      - media_data:/app/media
+    depends_on:
+      - db
+    networks:
+      - default
+      - proxy-net
+
+networks:
+  proxy-net:
+    external: true
+
+volumes:
+  postgres_data:
+  media_data:
