@@ -32,13 +32,12 @@ class CustomUserForm(FormSettings):
             self.fields['first_name'].required = True
             self.fields['last_name'].required = True
         # Add placeholder for the email field
-        self.fields['email'].widget.attrs['placeholder'] = "SIN"
+        self.fields['email'].widget.attrs['placeholder'] = "Email"
 
     def clean_email(self, *args, **kwargs):
         formEmail = self.cleaned_data['email'].lower()
         if '@' not in formEmail:
             formEmail += '@gmail.com'
-        print(formEmail)
         if self.instance.pk is None:  # Insert
             if CustomUser.objects.filter(email=formEmail).exists():
                 raise forms.ValidationError(
