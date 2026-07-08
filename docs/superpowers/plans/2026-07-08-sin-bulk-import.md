@@ -278,7 +278,7 @@ print('unknown identifier:', EmailBackend.authenticate(None, username='nobody', 
 "
 rm -f /tmp/plan_login_test.sqlite3
 ```
-Expected output: the first two lines print the respective user objects (their `__str__`, e.g. `Test Admin` / `Zimba, Isaac`), the third line also succeeds (the student's placeholder email is still a valid, if unadvertised, login path via the first lookup branch — this is fine, not a requirement to block), and the last two lines print `None`.
+Expected output: the first two lines print the respective user objects (their `__str__`, e.g. `Test Admin` / `Zimba Isaac` — `CustomUser.__str__` joins `last_name`/`first_name` with a plain space, no comma), the third line also succeeds (the student's placeholder email is still a valid, if unadvertised, login path via the first lookup branch — this is fine, not a requirement to block), and the last two lines print `None`.
 
 - [ ] **Step 3: Commit**
 
@@ -486,10 +486,12 @@ git commit -m "Add CSV bulk voter import view, route, and admin UI"
 
 ```bash
 rm -f /tmp/plan_e2e_test.sqlite3
-SECRET_KEY=test-key DATABASE_URL=sqlite:////tmp/plan_e2e_test.sqlite3 python manage.py migrate --noinput
-SECRET_KEY=test-key DATABASE_URL=sqlite:////tmp/plan_e2e_test.sqlite3 python manage.py shell -c "
+SECRET_KEY=test-key DATABASE_URL=sqlite:////tmp/plan_e2e_test.sqlite3 ALLOWED_HOSTS=testserver python manage.py migrate --noinput
+SECRET_KEY=test-key DATABASE_URL=sqlite:////tmp/plan_e2e_test.sqlite3 ALLOWED_HOSTS=testserver python manage.py shell -c "
 import io
 from django.test import Client
+from django.test.utils import setup_test_environment
+setup_test_environment()
 from django.contrib.auth import get_user_model
 from account.email_backend import EmailBackend
 User = get_user_model()
@@ -535,8 +537,8 @@ status: 200
 created: 2
 skipped: Row 4 (SN 3): duplicate SIN 21166850
 skipped: Row 5 (SN 4): NRC has fewer than 4 digits
-row1 login: Zimba, Isaac
-row2 login: Banda, John
+row1 login: Zimba Isaac
+row2 login: Banda John
 2nd upload created: 0
 2nd upload skipped count: 4
 admin login unaffected: Test Admin
