@@ -23,8 +23,8 @@
     <tr>
       <td>{{ voter.admin.first_name }}</td>
       <td>{{ voter.admin.last_name }}</td>
-      <td>{{ voter.admin.email }}</td>
-      <td>{{ voter.phone }}</td>
+      <td>{{ voter.sin|default:"-" }}</td>
+      <td>{{ voter.phone|default:"-" }}</td>
       
       <td>
         <button class='btn btn-primary btn-sm edit btn-flat' data-id='{{ voter.id }}'><i class='fa fa-edit'></i> Edit</button>

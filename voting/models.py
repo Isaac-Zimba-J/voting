@@ -5,7 +5,8 @@ from account.models import CustomUser
 
 class Voter(models.Model):
     admin = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    phone = models.CharField(max_length=11, unique=True)  # Used for OTP
+    phone = models.CharField(max_length=11, unique=True, null=True, blank=True)  # Used for OTP; nullable since bulk-imported voters have no phone on file
+    sin = models.CharField(max_length=20, unique=True, null=True, blank=True)  # Student Identification Number, used to log in for bulk-imported voters
     otp = models.CharField(max_length=10, null=True)
     verified = models.BooleanField(default=False)
     voted = models.BooleanField(default=False)
