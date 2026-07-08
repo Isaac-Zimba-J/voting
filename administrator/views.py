@@ -8,6 +8,9 @@ from django.http import JsonResponse, HttpResponse
 from django.conf import settings
 import json  # Not used
 from django_renderpdf.views import PDFView
+import csv
+import io
+from voting.import_utils import split_name, generate_password
 
 
 def find_n_winners(data, n):
@@ -451,3 +454,61 @@ def resetVote(request):
     Voter.objects.all().update(voted=False, verified=False, otp=None)
     messages.success(request, "All votes has been reset")
     return redirect(reverse('viewVotes'))
+
+
+def import_voters(request):
+    results = None
+    if request.method == 'POST' and request.FILES.get('csv_file'):
+        csv_file = request.FILES['csv_file']
+        decoded = csv_file.read().decode('utf-8-sig')
+        reader = csv.DictReader(io.StringIO(decoded))
+        fieldname_map = {name.strip().lower(): name for name in (reader.fieldnames or [])}
+
+        created_count = 0
+        skipped = []
+
+        for i, row in enumerate(reader, start=2):  # row 1 is the header
+            sin = (row.get(fieldname_map.get('sin', ''), '') or '').strip()
+            name = (row.get(fieldname_map.get('name', ''), '') or '').strip()
+            nrc = (row.get(fieldname_map.get('nrc', ''), '') or '').strip()
+            sn = (row.get(fieldname_map.get('sn', ''), '') or '').strip()
+            row_label = f"Row {i} (SN {sn})" if sn else f"Row {i}"
+
+            if not sin:
+                skipped.append(f"{row_label}: missing SIN")
+                continue
+            if Voter.objects.filter(sin=sin).exists():
+                skipped.append(f"{row_label}: duplicate SIN {sin}")
+                continue
+            if not name:
+                skipped.append(f"{row_label}: missing NAME")
+                continue
+
+            first_name, last_name = split_name(name)
+            password = generate_password(first_name, nrc)
+            if password is None:
+                skipped.append(f"{row_label}: NRC has fewer than 4 digits")
+                continue
+
+            email = f"{sin}@students.local"
+            user = CustomUser.objects.create_user(
+                email=email,
+                password=password,
+                first_name=first_name,
+                last_name=last_name,
+                user_type=2,
+            )
+            Voter.objects.create(admin=user, sin=sin)
+            created_count += 1
+
+        results = {
+            'created_count': created_count,
+            'skipped': skipped,
+            'skipped_count': len(skipped),
+        }
+
+    context = {
+        'page_title': 'Import Voters',
+        'results': results,
+    }
+    return render(request, "admin/voters_import.html", context)
