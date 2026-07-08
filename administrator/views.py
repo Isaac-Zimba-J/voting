@@ -10,6 +10,7 @@ import json  # Not used
 from django_renderpdf.views import PDFView
 import csv
 import io
+from django.db import transaction
 from voting.import_utils import split_name, generate_password
 
 
@@ -460,14 +461,19 @@ def import_voters(request):
     results = None
     if request.method == 'POST' and request.FILES.get('csv_file'):
         csv_file = request.FILES['csv_file']
-        decoded = csv_file.read().decode('utf-8-sig')
-        reader = csv.DictReader(io.StringIO(decoded))
-        fieldname_map = {name.strip().lower(): name for name in (reader.fieldnames or [])}
-
         created_count = 0
         skipped = []
 
-        for i, row in enumerate(reader, start=2):  # row 1 is the header
+        try:
+            decoded = csv_file.read().decode('utf-8-sig')
+            reader = csv.DictReader(io.StringIO(decoded))
+            fieldname_map = {name.strip().lower(): name for name in (reader.fieldnames or [])}
+            rows = list(enumerate(reader, start=2))  # row 1 is the header
+        except (UnicodeDecodeError, csv.Error):
+            rows = []
+            skipped.append("Could not read the file - make sure it's a UTF-8 encoded CSV")
+
+        for i, row in rows:
             sin = (row.get(fieldname_map.get('sin', ''), '') or '').strip()
             name = (row.get(fieldname_map.get('name', ''), '') or '').strip()
             nrc = (row.get(fieldname_map.get('nrc', ''), '') or '').strip()
@@ -491,15 +497,19 @@ def import_voters(request):
                 continue
 
             email = f"{sin}@students.local"
-            user = CustomUser.objects.create_user(
-                email=email,
-                password=password,
-                first_name=first_name,
-                last_name=last_name,
-                user_type=2,
-            )
-            Voter.objects.create(admin=user, sin=sin)
-            created_count += 1
+            try:
+                with transaction.atomic():
+                    user = CustomUser.objects.create_user(
+                        email=email,
+                        password=password,
+                        first_name=first_name,
+                        last_name=last_name,
+                        user_type=2,
+                    )
+                    Voter.objects.create(admin=user, sin=sin)
+                created_count += 1
+            except Exception:
+                skipped.append(f"{row_label}: could not create account for SIN {sin}")
 
         results = {
             'created_count': created_count,
