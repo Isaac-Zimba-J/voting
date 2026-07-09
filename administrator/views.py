@@ -12,6 +12,8 @@ import csv
 import io
 from django.db import transaction
 from voting.import_utils import split_name, generate_password
+from django.core import serializers
+import datetime
 
 
 def find_n_winners(data, n):
@@ -554,3 +556,37 @@ def create_admin(request):
         'page_title': 'Create Admin',
     }
     return render(request, "admin/create_admin.html", context)
+
+
+def reset_backup(request):
+    if request.user.user_type != '0':
+        messages.error(request, "You do not have access to this resource")
+        return redirect(reverse('adminDashboard'))
+
+    if request.method == 'POST':
+        if request.POST.get('action') == 'backup':
+            data = list(Position.objects.all()) + list(Candidate.objects.all()) + \
+                list(Votes.objects.all()) + list(Voter.objects.all()) + \
+                list(CustomUser.objects.filter(user_type='2'))
+            payload = serializers.serialize('json', data)
+            filename = f"voting-backup-{datetime.datetime.now().strftime('%Y-%m-%d-%H%M%S')}.json"
+            response = HttpResponse(payload, content_type='application/json')
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            return response
+
+        elif request.POST.get('action') == 'reset':
+            if request.POST.get('confirm') != 'RESET':
+                messages.error(request, "You must type RESET to confirm")
+            else:
+                with transaction.atomic():
+                    Votes.objects.all().delete()
+                    Candidate.objects.all().delete()
+                    Position.objects.all().delete()
+                    CustomUser.objects.filter(user_type='2').delete()
+                messages.success(request, "Election data has been reset")
+                return redirect(reverse('resetBackup'))
+
+    context = {
+        'page_title': 'Reset & Backup',
+    }
+    return render(request, "admin/reset_backup.html", context)

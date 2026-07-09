@@ -33,6 +33,7 @@
       {% if request.user.user_type == '0' %}
       <li class="header">SUPERADMIN</li>
       <li class=""><a href="{% url 'createAdmin' %}"><i class="fa fa-user-plus"></i> <span>Create Admin</span></a></li>
+      <li class=""><a href="{% url 'resetBackup' %}"><i class="fa fa-refresh"></i> <span>Reset & Backup</span></a></li>
       {% endif %}
 
       <li class="header">EXIT</li>

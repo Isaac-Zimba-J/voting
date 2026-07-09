@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     path('', views.dashboard, name="adminDashboard"),
     path('admin/create', views.create_admin, name='createAdmin'),
+    path('admin/reset-backup', views.reset_backup, name='resetBackup'),
     # * Voters
     path('voters', views.voters, name="adminViewVoters"),
     path('voters/view', views.view_voter_by_id, name="viewVoter"),
