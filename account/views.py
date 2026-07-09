@@ -9,7 +9,7 @@ from django.contrib.auth import login, logout
 
 def account_login(request):
     if request.user.is_authenticated:
-        if request.user.user_type == '1':
+        if request.user.user_type in ('0', '1'):
             return redirect(reverse("adminDashboard"))
         else:
             return redirect(reverse("voterDashboard"))
@@ -20,7 +20,7 @@ def account_login(request):
             'email'), password=request.POST.get('password'))
         if user != None:
             login(request, user)
-            if user.user_type == '1':
+            if user.user_type in ('0', '1'):
                 return redirect(reverse("adminDashboard"))
             else:
                 return redirect(reverse("voterDashboard"))

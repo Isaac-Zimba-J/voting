@@ -9,7 +9,7 @@ class AccountCheckMiddleWare(MiddlewareMixin):
         modulename = view_func.__module__
         user = request.user  # Who is the current user ?
         if user.is_authenticated:
-            if user.user_type == '1':  # Admin
+            if user.user_type in ('0', '1'):  # Superadmin or Admin
                 if modulename == 'voting.views':
                     error = True
                     if request.path == reverse('fetch_ballot'):
