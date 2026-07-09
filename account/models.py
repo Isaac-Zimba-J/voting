@@ -23,7 +23,7 @@ class CustomUserManager(UserManager):
     def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
-        extra_fields.setdefault("user_type", 1)
+        extra_fields.setdefault("user_type", 0)
         extra_fields.setdefault("last_name", "System")
         extra_fields.setdefault("first_name", "Administrator")
 
@@ -33,7 +33,7 @@ class CustomUserManager(UserManager):
 
 
 class CustomUser(AbstractUser):
-    USER_TYPE = ((1, "Admin"), (2, "Voter"))
+    USER_TYPE = ((0, "Superadmin"), (1, "Admin"), (2, "Voter"))
     username = None  # Removed username, using email instead
     email = models.EmailField(unique=True)
     user_type = models.CharField(default=2, choices=USER_TYPE, max_length=1)
