@@ -522,3 +522,35 @@ def import_voters(request):
         'results': results,
     }
     return render(request, "admin/voters_import.html", context)
+
+
+def create_admin(request):
+    if request.user.user_type != '0':
+        messages.error(request, "You do not have access to this resource")
+        return redirect(reverse('adminDashboard'))
+
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        password = request.POST.get('password', '')
+
+        if not email or not first_name or not last_name or not password:
+            messages.error(request, "All fields are required")
+        elif CustomUser.objects.filter(email=email).exists():
+            messages.error(request, "An account with this email already exists")
+        else:
+            CustomUser.objects.create_user(
+                email=email,
+                password=password,
+                first_name=first_name,
+                last_name=last_name,
+                user_type=1,
+            )
+            messages.success(request, "Admin account created")
+            return redirect(reverse('createAdmin'))
+
+    context = {
+        'page_title': 'Create Admin',
+    }
+    return render(request, "admin/create_admin.html", context)

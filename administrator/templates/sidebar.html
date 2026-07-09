@@ -14,7 +14,7 @@
     </div>
     <!-- sidebar menu: : style can be found in sidebar.less -->
     <ul class="sidebar-menu" data-widget="tree">
-      {% if request.user.user_type == '1' %}
+      {% if request.user.user_type == '0' or request.user.user_type == '1' %}
   
       
       <li class="header">REPORTS</li>
@@ -29,7 +29,12 @@
       <li class=""><a href="#config" data-toggle="modal"><i class="fa fa-font"></i> <span>Election Title</span></a></li>
             
       {% endif %}
-        
+
+      {% if request.user.user_type == '0' %}
+      <li class="header">SUPERADMIN</li>
+      <li class=""><a href="{% url 'createAdmin' %}"><i class="fa fa-user-plus"></i> <span>Create Admin</span></a></li>
+      {% endif %}
+
       <li class="header">EXIT</li>
       <li class=""><a href="{% url 'account_logout' %}"><i class="fa fa-power-off"></i> <span>Logout</span></a></li>
 
