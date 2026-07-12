@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
+from django.views.static import serve
 from . import settings
 
 urlpatterns = [
@@ -24,8 +25,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('administrator/', include('administrator.urls')),
     path('voting/', include('voting.urls')),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    # django.conf.urls.static.static() is a no-op whenever DEBUG=False, so
+    # it can never serve uploaded media in production - route media
+    # directly to the serve view instead, unconditionally.
+    path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}),
+]
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
