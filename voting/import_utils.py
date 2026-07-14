@@ -13,26 +13,21 @@ def split_name(name):
     return first_name, last_name
 
 
-def normalize_nrc_last4(nrc):
-    """Strip every non-digit character from nrc and return the last 4 digits.
+def normalize_nrc(nrc):
+    """Strip every non-digit character from nrc.
 
-    Returns None if fewer than 4 digits remain after stripping.
+    Returns None if no digits remain after stripping.
     """
     digits = re.sub(r'\D', '', nrc)
-    if len(digits) < 4:
+    if not digits:
         return None
-    return digits[-4:]
+    return digits
 
 
-def generate_password(first_name, nrc):
-    """Generate a password: capitalized first 3 letters of first_name, a
-    literal hyphen, then the last 4 digits of nrc (see normalize_nrc_last4).
+def generate_password(nrc):
+    """Generate a password: nrc's digits only, slashes/spaces/other
+    separators stripped (see normalize_nrc).
 
-    Returns None if nrc doesn't have at least 4 digits after normalization.
+    Returns None if nrc has no digits after normalization.
     """
-    last4 = normalize_nrc_last4(nrc)
-    if last4 is None:
-        return None
-    letters = first_name.strip()[:3]
-    name_part = letters[:1].upper() + letters[1:].lower()
-    return f"{name_part}-{last4}"
+    return normalize_nrc(nrc)

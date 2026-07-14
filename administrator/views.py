@@ -493,9 +493,9 @@ def import_voters(request):
                 continue
 
             first_name, last_name = split_name(name)
-            password = generate_password(first_name, nrc)
+            password = generate_password(nrc)
             if password is None:
-                skipped.append(f"{row_label}: NRC has fewer than 4 digits")
+                skipped.append(f"{row_label}: NRC has no digits")
                 continue
 
             email = f"{sin}@students.local"
