@@ -1,0 +1,5 @@
+# Same fix as cbuvoting1.work.gd_location - this instance has the identical
+# bulk voter CSV import feature and would hit the same timeout on a large
+# enough import.
+proxy_read_timeout 300s;
+proxy_send_timeout 300s;

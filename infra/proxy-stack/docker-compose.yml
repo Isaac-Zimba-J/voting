@@ -11,6 +11,10 @@ services:
       - html:/usr/share/nginx/html
       - certs:/etc/nginx/certs:ro
       - /var/run/docker.sock:/tmp/docker.sock:ro
+      # Per-vhost proxy timeout overrides (see comments in each file) -
+      # layered on top of the vhost.d named volume above.
+      - ./vhost.d/cbuvoting1.work.gd_location:/etc/nginx/vhost.d/cbuvoting1.work.gd_location:ro
+      - ./vhost.d/cbuvoting2.work.gd_location:/etc/nginx/vhost.d/cbuvoting2.work.gd_location:ro
     networks:
       - proxy-net
 
