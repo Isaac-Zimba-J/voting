@@ -280,8 +280,10 @@ def deleteVoter(request):
         admin = Voter.objects.get(id=request.POST.get('id')).admin
         admin.delete()
         messages.success(request, "Voter Has Been Deleted")
-    except:
-        messages.error(request, "Access To This Resource Denied")
+    except Voter.DoesNotExist:
+        messages.error(request, "Voter not found")
+    except Exception as e:
+        messages.error(request, f"Could not delete voter: {e}")
 
     return redirect(reverse('adminViewVoters'))
 
