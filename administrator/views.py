@@ -130,32 +130,45 @@ def dashboard(request):
 
 def voters(request):
     voters = Voter.objects.all()
-    userForm = CustomUserForm(request.POST or None)
-    voterForm = VoterForm(request.POST or None)
     context = {
-        'form1': userForm,
-        'form2': voterForm,
         'voters': voters,
         'page_title': 'Voters List'
     }
-    
+
     if request.method == 'POST':
-        if userForm.is_valid() and voterForm.is_valid():
-            user = userForm.save(commit=False)
-            
-            # Append @gmail.com if not already present
-            email = userForm.cleaned_data['email']
-            if not email.endswith('@gmail.com'):
-                email += '@gmail.com'
-            user.email = email
-            
-            voter = voterForm.save(commit=False)
-            voter.admin = user
-            user.save()
-            voter.save()
-            messages.success(request, "New voter created")
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        sin = request.POST.get('sin', '').strip()
+        phone = request.POST.get('phone', '').strip()
+        password = request.POST.get('password', '').strip()
+
+        if not first_name or not last_name or not sin:
+            messages.error(request, "First name, last name and SIN are required")
+        elif Voter.objects.filter(sin=sin).exists():
+            messages.error(request, f"A voter with SIN {sin} already exists")
         else:
-            messages.error(request, "Form validation failed")
+            if not password:
+                # Same convention as bulk CSV import: password defaults to
+                # the SIN's digits when the admin doesn't set one explicitly.
+                password = generate_password(sin)
+            if not password:
+                messages.error(
+                    request, "SIN has no digits to auto-generate a password from - please set one manually")
+            else:
+                try:
+                    with transaction.atomic():
+                        user = CustomUser.objects.create_user(
+                            email=f"{sin}@students.local",
+                            password=password,
+                            first_name=first_name,
+                            last_name=last_name,
+                            user_type=2,
+                        )
+                        Voter.objects.create(admin=user, sin=sin, phone=phone or None)
+                    messages.success(request, "New voter created")
+                except Exception:
+                    messages.error(
+                        request, "Could not create voter - the phone number may already be in use")
 
     return render(request, "admin/voters.html", context)
 
