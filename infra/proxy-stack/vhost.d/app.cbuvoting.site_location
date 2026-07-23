@@ -1,0 +1,8 @@
+# app.cbuvoting.site = cbuvoting1 (migrated off cbuvoting1.work.gd).
+# Bulk voter CSV import (Voters -> Import CSV) hashes a password and writes
+# two DB rows per row of a potentially large spreadsheet, synchronously, in
+# one request. nginx's default proxy_read_timeout (60s) was cutting that
+# request off before gunicorn's own timeout fix (see entrypoint.sh) even
+# got a chance to matter. Give it real headroom.
+proxy_read_timeout 300s;
+proxy_send_timeout 300s;

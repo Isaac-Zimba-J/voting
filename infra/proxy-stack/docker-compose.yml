@@ -15,6 +15,11 @@ services:
       # layered on top of the vhost.d named volume above.
       - ./vhost.d/cbuvoting1.work.gd_location:/etc/nginx/vhost.d/cbuvoting1.work.gd_location:ro
       - ./vhost.d/cbuvoting2.work.gd_location:/etc/nginx/vhost.d/cbuvoting2.work.gd_location:ro
+      # New domain (cbuvoting.site) - kept alongside the work.gd ones above
+      # during the migration; drop the work.gd mounts and DNS once cutover
+      # is confirmed stable.
+      - ./vhost.d/app.cbuvoting.site_location:/etc/nginx/vhost.d/app.cbuvoting.site_location:ro
+      - ./vhost.d/apps.cbuvoting.site_location:/etc/nginx/vhost.d/apps.cbuvoting.site_location:ro
     networks:
       - proxy-net
 
