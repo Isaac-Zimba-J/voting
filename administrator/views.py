@@ -1,7 +1,6 @@
 from django.shortcuts import render, reverse, redirect
 from voting.models import Voter, Position, Candidate, Votes
 from account.models import CustomUser
-from account.forms import CustomUserForm
 from voting.forms import *
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
@@ -208,7 +207,7 @@ def view_voter_by_id(request):
         context['last_name'] = voter.admin.last_name
         context['phone'] = voter.phone
         context['id'] = voter.id
-        context['SIN'] = voter.admin.email
+        context['sin'] = voter.sin
     return JsonResponse(context)
 
 
@@ -227,47 +226,44 @@ def view_position_by_id(request):
     return JsonResponse(context)
 
 
-# def updateVoter(request):
-#     if request.method != 'POST':
-#         messages.error(request, "Access Denied")
-#     try:
-#         instance = Voter.objects.get(id=request.POST.get('id'))
-#         user = CustomUserForm(request.POST or None, instance=instance.admin)
-#         voter = VoterForm(request.POST or None, instance=instance)
-#         user.save()
-#         voter.save()
-#         messages.success(request, "Voter's bio updated")
-#     except:
-#         messages.error(request, "Access To This Resource Denied")
-
-#     return redirect(reverse('adminViewVoters'))
 def updateVoter(request):
     if request.method != 'POST':
         messages.error(request, "Access Denied")
         return redirect(reverse('adminViewVoters'))
 
     try:
-        instance = Voter.objects.get(id=request.POST.get('id'))
-        user = CustomUserForm(request.POST or None, instance=instance.admin)
-        voter = VoterForm(request.POST or None, instance=instance)
-
-        if user.is_valid() and voter.is_valid():
-            # Append @gmail.com if not already present
-            email = user.cleaned_data['email']
-            if not email.endswith('@gmail.com'):
-                email += '@gmail.com'
-            user.instance.email = email
-
-            user.save()
-            voter.save()
-            messages.success(request, "Voter's bio updated")
-        else:
-            messages.error(request, "Form validation failed")
-
+        voter = Voter.objects.get(id=request.POST.get('id'))
     except Voter.DoesNotExist:
         messages.error(request, "Voter not found")
-    except Exception as e:
-        messages.error(request, f"Access To This Resource Denied: {e}")
+        return redirect(reverse('adminViewVoters'))
+
+    first_name = request.POST.get('first_name', '').strip()
+    last_name = request.POST.get('last_name', '').strip()
+    sin = request.POST.get('sin', '').strip()
+    phone = request.POST.get('phone', '').strip()
+    password = request.POST.get('password', '').strip()
+
+    if not first_name or not last_name or not sin:
+        messages.error(request, "First name, last name and SIN are required")
+    elif Voter.objects.filter(sin=sin).exclude(id=voter.id).exists():
+        messages.error(request, f"A voter with SIN {sin} already exists")
+    else:
+        try:
+            with transaction.atomic():
+                user = voter.admin
+                user.first_name = first_name
+                user.last_name = last_name
+                if password:
+                    user.set_password(password)
+                user.save()
+
+                voter.sin = sin
+                voter.phone = phone or None
+                voter.save()
+            messages.success(request, "Voter's bio updated")
+        except Exception:
+            messages.error(
+                request, "Could not update voter - the phone number may already be in use")
 
     return redirect(reverse('adminViewVoters'))
 
