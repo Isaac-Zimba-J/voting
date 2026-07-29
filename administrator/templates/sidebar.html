@@ -27,7 +27,8 @@
       <li class="header">SETTINGS</li>
       <li class=""><a href="{% url 'ballot_position' %}"><i class="fa fa-file-text"></i> <span>Ballot Position</span></a></li>
       <li class=""><a href="#config" data-toggle="modal"><i class="fa fa-font"></i> <span>Election Title</span></a></li>
-            
+      <li class=""><a href="{% url 'changePassword' %}"><i class="fa fa-key"></i> <span>Change Password</span></a></li>
+
       {% endif %}
 
       {% if request.user.user_type == '0' %}

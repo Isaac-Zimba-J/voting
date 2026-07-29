@@ -3,6 +3,7 @@ from voting.models import Voter, Position, Candidate, Votes
 from account.models import CustomUser
 from voting.forms import *
 from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
 from django.http import JsonResponse, HttpResponse
 from django.conf import settings
 import json  # Not used
@@ -601,3 +602,27 @@ def reset_backup(request):
         'page_title': 'Reset & Backup',
     }
     return render(request, "admin/reset_backup.html", context)
+
+
+def change_password(request):
+    if request.method == 'POST':
+        current_password = request.POST.get('current_password', '')
+        new_password = request.POST.get('new_password', '')
+        confirm_password = request.POST.get('confirm_password', '')
+
+        if not request.user.check_password(current_password):
+            messages.error(request, "Current password is incorrect")
+        elif not new_password:
+            messages.error(request, "New password is required")
+        elif new_password != confirm_password:
+            messages.error(request, "New password and confirmation do not match")
+        else:
+            request.user.set_password(new_password)
+            request.user.save()
+            update_session_auth_hash(request, request.user)
+            messages.success(request, "Password changed successfully")
+
+    context = {
+        'page_title': 'Change Password',
+    }
+    return render(request, "admin/change_password.html", context)
