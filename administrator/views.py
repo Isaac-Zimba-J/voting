@@ -256,6 +256,8 @@ def updateVoter(request):
                 user.last_name = last_name
                 if password:
                     user.set_password(password)
+                if voter.sin != sin and user.email == f"{voter.sin}@students.local":
+                    user.email = f"{sin}@students.local"
                 user.save()
 
                 voter.sin = sin
@@ -612,7 +614,7 @@ def change_password(request):
 
         if not request.user.check_password(current_password):
             messages.error(request, "Current password is incorrect")
-        elif not new_password:
+        elif not new_password.strip():
             messages.error(request, "New password is required")
         elif new_password != confirm_password:
             messages.error(request, "New password and confirmation do not match")
