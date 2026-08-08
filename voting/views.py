@@ -28,6 +28,7 @@ def generate_ballot(display_controls=False):
         name = position.name
         position_name = slugify(name)
         candidates = Candidate.objects.filter(position=position)
+        instruction = "No candidates for this position yet"
         for candidate in candidates:
             if position.max_vote > 1:
                 instruction = "You may select up to " + \
